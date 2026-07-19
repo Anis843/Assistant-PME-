@@ -4,16 +4,18 @@ import {
   BarChart3,
   Bot,
   Settings,
+  Plug,
   LogIn,
 } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 
 const NAV_ITEMS = [
-  { to: "/", label: "Tableau de bord", icon: LayoutDashboard, end: true },
+  { to: "/Dashboard", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/Chat", label: "Chat", icon: MessagesSquare },
-  { to: "/Document", label: "Document", icon: BarChart3 },
+  { to: "/Analyses", label: "Analyses", icon: BarChart3 },
   { to: "/agents", label: "Agents", icon: Bot },
   { to: "/Login", label: "Login", icon: LogIn },
+  { to: "/Integrations", label: "Integrations", icon: Plug },
   { to: "/Settings", label: "Settings", icon: Settings },
 ];
 
