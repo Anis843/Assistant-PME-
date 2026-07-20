@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/auth/AuthLayout";
 import Button from "../components/ui/Button";
+import { login } from "../lib/api";
+import { saveToken } from "../lib/auth";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -17,18 +19,11 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      // TODO: remplacer par le vrai appel à l'API backend (POST /api/auth/login)
-      // const res = await fetch("/api/auth/login", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ email, password, rememberMe }),
-      // });
-      // if (!res.ok) throw new Error("Identifiants invalides");
-
+      const { access_token } = await login({ email, password });
+      saveToken(access_token);
       navigate("/");
     } catch (err) {
-      console.log(err);
-      setError("Email ou mot de passe incorrect.");
+      setError(err.message || "Email ou mot de passe incorrect.");
     } finally {
       setIsSubmitting(false);
     }
