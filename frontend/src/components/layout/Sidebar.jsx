@@ -5,18 +5,18 @@ import {
   Bot,
   Settings,
   Plug,
-  LogIn,
+  FileText,
 } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 
 const NAV_ITEMS = [
-  { to: "/Dashboard", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/Chat", label: "Chat", icon: MessagesSquare },
-  { to: "/Analyses", label: "Analyses", icon: BarChart3 },
-  { to: "/agents", label: "Agents", icon: Bot },
-  { to: "/Login", label: "Login", icon: LogIn },
-  { to: "/Integrations", label: "Integrations", icon: Plug },
-  { to: "/Settings", label: "Settings", icon: Settings },
+  { to: "/app", label: "Dashboard", icon: LayoutDashboard, end: true },
+  { to: "/app/Chat", label: "Chat", icon: MessagesSquare },
+  { to: "/app/Documents", label: "Documents", icon: FileText },
+  { to: "/app/Analyses", label: "Analyses", icon: BarChart3 },
+  { to: "/app/Agents", label: "Agents", icon: Bot },
+  { to: "/app/Integrations", label: "Integrations", icon: Plug },
+  { to: "/app/Settings", label: "Settings", icon: Settings },
 ];
 
 /**
