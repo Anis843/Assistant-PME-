@@ -106,6 +106,33 @@ def create_embeddings(chunks: list[str]) -> list[list[float]]:
     return vectors.tolist()
 
 
+def search_chunks(db, user_id: uuid.UUID, query_text: str, limit: int = 5) -> list[dict]:
+    """Recherche sémantique : vectorise la question et retourne les chunks
+    les plus proches (parmi les documents de l'utilisateur), triés par pertinence.
+    """
+    query_embedding = create_embeddings([query_text])[0]
+    distance = DocumentChunk.embedding.cosine_distance(query_embedding).label("distance")
+
+    results = (
+        db.query(DocumentChunk, Document, distance)
+        .join(Document, DocumentChunk.document_id == Document.id)
+        .filter(Document.user_id == user_id)
+        .order_by(distance)
+        .limit(limit)
+        .all()
+    )
+
+    return [
+        {
+            "document_id": document.id,
+            "document_name": document.original_name,
+            "content": chunk.content,
+            "score": 1 - dist,  # cosine_distance = 1 - similarité cosinus
+        }
+        for chunk, document, dist in results
+    ]
+
+
 def process_document(document_id: uuid.UUID) -> None:
     """Pipeline RAG complète, lancée en tâche de fond après l'upload.
 

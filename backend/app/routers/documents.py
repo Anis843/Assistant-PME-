@@ -5,7 +5,7 @@ from app.database.session import get_db
 from app.core.security import get_current_user
 from app.models.user import User
 from app.models.document import Document, DocumentStatus
-from app.schemas.document import DocumentOut, DocumentUploadResponse
+from app.schemas.document import DocumentOut, DocumentUploadResponse, SearchQuery, SearchResult
 from app.services import document_service
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
@@ -46,3 +46,12 @@ def list_documents(
     current_user: User = Depends(get_current_user),
 ):
     return db.query(Document).filter(Document.user_id == current_user.id).all()
+
+
+@router.post("/search", response_model=list[SearchResult])
+def search_documents(
+    payload: SearchQuery,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return document_service.search_chunks(db, current_user.id, payload.query, payload.limit)
