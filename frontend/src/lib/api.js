@@ -49,3 +49,42 @@ export function getMe(token) {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
+/**
+ * uploadDocument
+ * Upload d'un fichier PDF. Nécessite un FormData (pas de JSON.stringify),
+ * et surtout PAS de Content-Type manuel — le navigateur doit définir
+ * le boundary multipart lui-même.
+ */
+export async function uploadDocument(file, token) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${API_BASE_URL}/api/documents/upload`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      // pas de Content-Type ici, volontairement
+    },
+    body: formData,
+  });
+
+  const data = await res.json().catch(() => null);
+
+  if (!res.ok) {
+    throw new Error(
+      data?.detail || "Une erreur est survenue lors de l'upload.",
+    );
+  }
+
+  return data;
+}
+
+/**
+ * listDocuments
+ * Récupère la liste des documents de l'utilisateur connecté.
+ */
+export function listDocuments(token) {
+  return apiFetch("/api/documents/", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}

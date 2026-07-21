@@ -1,4 +1,6 @@
-import { Bell } from "lucide-react";
+import { Bell, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { clearToken } from "../../lib/auth";
 
 /**
  * Header
@@ -10,6 +12,13 @@ import { Bell } from "lucide-react";
  *                             (en plus de la cloche de notifications toujours affichée)
  */
 export default function Header({ title, actions }) {
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    clearToken();
+    navigate("/login");
+  }
+
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-800 bg-slate-950 px-6">
       <h1 className="text-lg font-semibold text-white">{title}</h1>
@@ -22,6 +31,14 @@ export default function Header({ title, actions }) {
           className="rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-slate-200"
         >
           <Bell className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={handleLogout}
+          aria-label="Se déconnecter"
+          className="rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-red-400"
+        >
+          <LogOut className="h-4 w-4" />
         </button>
       </div>
     </header>

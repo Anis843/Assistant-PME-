@@ -3,6 +3,7 @@ from datetime import datetime
 
 from sqlalchemy import Column, String, DateTime
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 
 from app.database.session import Base
 
@@ -16,3 +17,5 @@ class User(Base):
     full_name = Column(String, nullable=True)
     company_name = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    documents = relationship("Document", back_populates="user")
