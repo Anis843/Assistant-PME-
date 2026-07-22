@@ -29,3 +29,15 @@ class SearchResult(BaseModel):
     document_name: str
     content: str
     score: float  # similarité cosinus, 1 = identique, 0 = aucun rapport
+
+
+class ChatRequest(BaseModel):
+    question: str = Field(min_length=1)
+    # Optionnel : réservé pour un futur filtrage sur un document précis.
+    # Pour l'instant la recherche couvre tous les documents de l'utilisateur.
+    document_id: uuid.UUID | None = None
+
+
+class ChatResponse(BaseModel):
+    answer: str
+    sources: list[SearchResult]

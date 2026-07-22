@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from app.models import document, document_chunk
 from app.database.session import Base, engine
-from app.routers import auth,documents
+from app.routers import auth,documents,chat
 
 # Nécessaire avant create_all : la colonne Vector (document_chunks.embedding)
 # s'appuie sur le type Postgres fourni par l'extension pgvector.
@@ -30,6 +30,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(documents.router)
+app.include_router(chat.router)
 
 @app.get("/api/health")
 def health_check():

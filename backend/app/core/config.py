@@ -11,6 +11,25 @@ class Settings(BaseSettings):
     secret_key: str
     access_token_expire_minutes: int = 60 * 24 * 7  # 7 jours
 
+    # Fournisseur de LLM : "ollama" (local, données confidentielles),
+    # "groq" ou "gemini" (hébergés, plus gros modèles et plus rapides — démos).
+    llm_provider: str = "ollama"
+
+    # LLM local via Ollama. En dev, le serveur Ollama écoute sur le port 11434.
+    # Surcharge possible via les variables d'environnement OLLAMA_URL / OLLAMA_MODEL.
+    ollama_url: str = "http://localhost:11434"
+    ollama_model: str = "llama3.2:3b"
+
+    # LLM hébergé via Groq (API compatible OpenAI, tier gratuit).
+    # La clé se définit via la variable d'environnement GROQ_API_KEY.
+    groq_api_key: str = ""
+    groq_model: str = "llama-3.3-70b-versatile"
+
+    # LLM hébergé via Google Gemini (AI Studio, tier gratuit).
+    # La clé se définit via la variable d'environnement GEMINI_API_KEY.
+    gemini_api_key: str = "GEMINI_API_KEY"
+    gemini_model: str = "gemini-flash-latest"
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
