@@ -88,3 +88,17 @@ export function listDocuments(token) {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
+
+/**
+ * sendChatMessage
+ * Envoie une question au backend et récupère la réponse générée par le LLM
+ * ainsi que les sources (passages de documents) utilisées.
+ * Retourne { answer, sources }.
+ */
+export function sendChatMessage({ question, documentId = null }, token) {
+  return apiFetch("/api/chat", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ question, document_id: documentId }),
+  });
+}
