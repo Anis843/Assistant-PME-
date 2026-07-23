@@ -19,7 +19,17 @@ CHUNK_SIZE = 800  # caractères par chunk (approximatif, découpe par mots)
 CHUNK_OVERLAP = 100  # chevauchement entre deux chunks consécutifs
 
 # Modèle multilingue (adapté au français), léger, tourne en local/CPU.
-EMBEDDING_MODEL_NAME = "paraphrase-multilingual-MiniLM-L12-v2"
+#
+# e5 est entraîné pour la recherche *asymétrique* : faire correspondre une
+# question à un passage qui contient la réponse. C'est précisément notre cas.
+# Un modèle de paraphrase, lui, compare deux phrases de même nature et classe
+# mal les extraits pour du RAG.
+#
+# Contrepartie : e5 attend des préfixes explicites selon le rôle du texte.
+# Les omettre dégrade nettement la pertinence.
+EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-small"
+QUERY_PREFIX = "query: "  # côté question
+PASSAGE_PREFIX = "passage: "  # côté extrait indexé
 
 _embedding_model = None
 
@@ -97,20 +107,30 @@ def split_document(
     return chunks
 
 
-def create_embeddings(chunks: list[str]) -> list[list[float]]:
-    """Vectorise une liste de chunks de texte via sentence-transformers (local)."""
-    if not chunks:
+def _encode(texts: list[str]) -> list[list[float]]:
+    """Vectorise des textes déjà préfixés, via sentence-transformers (local)."""
+    if not texts:
         return []
     model = _get_embedding_model()
-    vectors = model.encode(chunks, normalize_embeddings=True)
+    vectors = model.encode(texts, normalize_embeddings=True)
     return vectors.tolist()
+
+
+def embed_passages(chunks: list[str]) -> list[list[float]]:
+    """Vectorise des extraits de document, en vue de leur indexation."""
+    return _encode([PASSAGE_PREFIX + chunk for chunk in chunks])
+
+
+def embed_query(question: str) -> list[float]:
+    """Vectorise une question, en vue d'une recherche."""
+    return _encode([QUERY_PREFIX + question])[0]
 
 
 def search_chunks(db, user_id: uuid.UUID, query_text: str, limit: int = 5) -> list[dict]:
     """Recherche sémantique : vectorise la question et retourne les chunks
     les plus proches (parmi les documents de l'utilisateur), triés par pertinence.
     """
-    query_embedding = create_embeddings([query_text])[0]
+    query_embedding = embed_query(query_text)
     distance = DocumentChunk.embedding.cosine_distance(query_embedding).label("distance")
 
     results = (
@@ -149,10 +169,17 @@ def process_document(document_id: uuid.UUID) -> None:
         document.status = DocumentStatus.processing
         db.commit()
 
+        # Purge les extraits existants : sans ça, relancer l'indexation d'un
+        # document (changement de modèle d'embeddings, par exemple) les
+        # dupliquerait au lieu de les remplacer.
+        db.query(DocumentChunk).filter(
+            DocumentChunk.document_id == document.id
+        ).delete()
+
         file_path = os.path.join(UPLOAD_DIR, document.filename)
         text = load_document(file_path)
         chunks = split_document(text)
-        embeddings = create_embeddings(chunks)
+        embeddings = embed_passages(chunks)
 
         for index, (content, embedding) in enumerate(zip(chunks, embeddings)):
             db.add(

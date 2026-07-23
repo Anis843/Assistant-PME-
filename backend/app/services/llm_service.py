@@ -22,12 +22,35 @@ GROQ_TIMEOUT = 60.0
 TEMPERATURE = 0.2  # réponses factuelles et stables (peu de créativité)
 MAX_TOKENS = 512  # plafonne la longueur de la réponse
 
-# Filtrage des sources affichées :
-#  - plancher absolu : en dessous, un passage est jugé hors sujet ;
-#  - marge relative : on ne garde que les passages proches du meilleur score,
-#    ce qui évite de citer des documents secondaires quand un seul répond.
-SOURCE_MIN_SCORE = 0.30
-SOURCE_MARGIN = 0.15
+# Gemini compte les jetons de réflexion interne dans ce plafond. Même en ayant
+# désactivé la réflexion, on garde de la marge : une réponse tronquée en plein
+# milieu est bien pire qu'une réponse un peu longue.
+GEMINI_MAX_TOKENS = 2048
+
+# Budget de réflexion interne de Gemini. Le modèle refuse 0 (erreur 400) ;
+# 128 jetons suffisent pour une tâche d'extraction et laissent tout le reste
+# du plafond à la réponse elle-même.
+GEMINI_THINKING_BUDGET = 128
+
+# Filtrage des sources affichées. Valeurs calibrées pour multilingual-e5-small,
+# qui comprime les scores dans une bande étroite (~0.70 à ~0.85) :
+#  - le plancher absolu ne discrimine presque plus (une question hors sujet peut
+#    atteindre 0.81) : il ne sert que de garde-fou grossier ;
+#  - c'est l'écart au meilleur score qui porte l'information. Il doit rester
+#    serré, sinon tous les passages remontés sont cités.
+#
+# Détecter qu'aucun document ne répond n'est donc pas du ressort du score : le
+# prompt demande explicitement au LLM de le dire quand le contexte est muet.
+SOURCE_MIN_SCORE = 0.70
+SOURCE_MARGIN = 0.02
+
+# Phrase imposée au modèle quand le contexte ne contient pas la réponse.
+# En fixer le texte exact permet de la reconnaître ensuite de façon fiable.
+NOT_FOUND_SENTENCE = "Je ne trouve pas cette information dans les documents."
+
+# Fragment recherché dans la réponse pour détecter ce cas, en tolérant les
+# variations de formulation des modèles les moins dociles.
+NOT_FOUND_MARKER = "ne trouve pas cette information"
 
 SYSTEM_PROMPT = (
     "Tu es NexIA, un assistant qui répond aux questions à partir de documents "
@@ -38,22 +61,22 @@ SYSTEM_PROMPT = (
     "Ne mentionne JAMAIS les numéros d'extraits (« Extrait 1 », etc.) ni les noms "
     "de fichiers (« Contrat_prestation_AtlasDigital.pdf », etc.) dans ta réponse : "
     "les sources sont affichées séparément. "
-    "Si la réponse ne se trouve pas dans le contexte, dis-le honnêtement avec "
-    "une phrase du type « Je ne trouve pas cette information dans les documents »."
+    "Si la réponse ne se trouve pas dans le contexte, réponds EXACTEMENT : "
+    f"« {NOT_FOUND_SENTENCE} », sans rien ajouter."
 )
 
 
 def build_prompt(question: str, chunks: list[dict]) -> str:
     """Assemble le prompt final : instructions + contexte extrait + question.
 
-    Chaque passage est numéroté et préfixé de son document d'origine, pour que
-    le modèle puisse s'y référer et rester ancré dans les sources.
+    Les passages sont numérotés mais volontairement anonymes : le nom du
+    document n'est pas transmis au modèle. Les petits modèles le recopient dans
+    leur réponse malgré l'interdiction ; ne pas le fournir supprime le problème
+    à la source. L'interface affiche les sources séparément.
     """
     context_blocks = []
     for index, chunk in enumerate(chunks, start=1):
-        context_blocks.append(
-            f"[Extrait {index} — {chunk['document_name']}]\n{chunk['content']}"
-        )
+        context_blocks.append(f"[Extrait {index}]\n{chunk['content']}")
     context = "\n\n".join(context_blocks)
 
     return (
@@ -75,15 +98,19 @@ def _post(url: str, *, json: dict, headers: dict | None, timeout: float, service
         response.raise_for_status()
         return response.json()
     except httpx.ConnectError as exc:
-        raise RuntimeError(f"Le service LLM ({service}) est injoignable.") from exc
+        raise RuntimeError(
+            f"Le service d'IA ({service}) est injoignable. Vérifiez qu'il est "
+            "démarré, puis réessayez."
+        ) from exc
     except httpx.HTTPStatusError as exc:
         raise RuntimeError(
-            f"Le service LLM ({service}) a répondu avec une erreur "
-            f"({exc.response.status_code})."
+            f"Le service d'IA ({service}) a refusé la requête "
+            f"(erreur {exc.response.status_code}). Vérifiez la configuration."
         ) from exc
     except httpx.TimeoutException as exc:
         raise RuntimeError(
-            f"Le service LLM ({service}) a mis trop de temps à répondre. Réessaie."
+            f"Le service d'IA ({service}) a mis trop de temps à répondre. "
+            "Réessayez dans un instant."
         ) from exc
 
 
@@ -161,7 +188,14 @@ def call_gemini(prompt: str) -> str:
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {
                 "temperature": TEMPERATURE,
-                "maxOutputTokens": MAX_TOKENS,
+                "maxOutputTokens": GEMINI_MAX_TOKENS,
+                # Les modèles Flash récents « réfléchissent » avant de répondre,
+                # et ces jetons de réflexion consomment maxOutputTokens : la
+                # réponse visible se retrouve tronquée. Extraire une information
+                # d'un extrait ne demande presque aucun raisonnement, mais ce
+                # modèle refuse un budget nul (erreur 400) : on le réduit au
+                # minimum utile.
+                "thinkingConfig": {"thinkingBudget": GEMINI_THINKING_BUDGET},
             },
         },
         headers={"x-goog-api-key": settings.gemini_api_key},
@@ -173,7 +207,21 @@ def call_gemini(prompt: str) -> str:
     candidates = data.get("candidates", [])
     if not candidates:
         raise RuntimeError("Gemini n'a renvoyé aucune réponse (contenu filtré ?).")
-    return candidates[0]["content"]["parts"][0]["text"].strip()
+
+    candidate = candidates[0]
+    # On concatène tous les fragments de texte en ignorant ceux marqués comme
+    # réflexion interne (`thought`), qui ne doivent jamais être montrés.
+    parts = candidate.get("content", {}).get("parts", [])
+    text = "".join(
+        part["text"] for part in parts if "text" in part and not part.get("thought")
+    ).strip()
+
+    if not text:
+        raise RuntimeError(
+            "Gemini n'a renvoyé aucun texte "
+            f"(motif : {candidate.get('finishReason', 'inconnu')})."
+        )
+    return text
 
 
 # Aiguillage : associe chaque provider à sa fonction d'appel.
@@ -216,6 +264,11 @@ def answer_question(
 
     prompt = build_prompt(question, chunks)
     answer = generate(prompt)
+
+    # Le modèle indique qu'il n'a rien trouvé : citer des sources serait
+    # contradictoire, puisque aucun extrait n'a servi à répondre.
+    if NOT_FOUND_MARKER in answer.lower():
+        return {"answer": answer, "sources": []}
 
     # Le LLM reçoit tout le contexte, mais on n'expose comme sources que les
     # passages proches du meilleur score (et au-dessus du plancher absolu),

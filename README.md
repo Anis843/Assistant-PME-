@@ -101,7 +101,7 @@ Stockage des embeddings en base (PostgreSQL + pgvector)
 |---------|-------------|
 | **Backend** | FastAPI, Uvicorn, SQLAlchemy, Pydantic |
 | **Base de données** | PostgreSQL + extension **pgvector** (recherche vectorielle) |
-| **Embeddings** | `sentence-transformers` — modèle `paraphrase-multilingual-MiniLM-L12-v2` (local, adapté au français) |
+| **Embeddings** | `sentence-transformers` — modèle `multilingual-e5-small` (local, multilingue, optimisé pour la recherche) |
 | **LLM** | Ollama (local) · Google Gemini · Groq — *interchangeables* |
 | **Authentification** | JWT (python-jose), hachage bcrypt (passlib) |
 | **Traitement PDF** | pypdf |
