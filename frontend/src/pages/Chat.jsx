@@ -1,34 +1,36 @@
 import { useEffect, useState } from "react";
-import ConversationList from "../components/dashboard/conversations/ConversationList";
+import DocumentContextPanel from "../components/dashboard/conversations/DocumentContextPanel";
 import ConversationThread from "../components/dashboard/conversations/ConversationThread";
 import { listDocuments, sendChatMessage } from "../lib/api";
 import { getToken } from "../lib/auth";
 
-const STATUS_LABEL = {
-  uploaded: "Importé",
-  processing: "Traitement…",
-  indexed: "Indexé",
-  error: "Erreur",
-};
+// Questions proposées au démarrage : elles montrent immédiatement le type de
+// réponse attendu, sans que l'utilisateur ait à deviner quoi demander.
+const SUGGESTED_QUESTIONS = [
+  "Quelles sont les conditions de résiliation ?",
+  "Quel est le montant TTC de la facture ?",
+  "Combien de jours de télétravail sont autorisés ?",
+];
 
 // L'assistant interroge l'ensemble des documents indexés de l'utilisateur.
-// La colonne de gauche liste ces documents (contexte réel), la colonne de
-// droite est le fil de discussion avec NexIA.
+// La colonne de gauche affiche ce périmètre, la colonne de droite est le fil
+// de discussion avec NexIA.
 export default function Chat() {
   const [documents, setDocuments] = useState([]);
-  const [activeId, setActiveId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let ignore = false;
 
     listDocuments(getToken())
       .then((data) => {
-        if (ignore) return;
-        setDocuments(data);
-        if (data.length > 0) setActiveId(data[0].id);
+        if (!ignore) setDocuments(data);
       })
       .catch(() => {
-        // La liste est purement informative : en cas d'échec, le chat reste utilisable.
+        // La liste est informative : en cas d'échec, on n'empêche pas le chat.
+      })
+      .finally(() => {
+        if (!ignore) setLoading(false);
       });
 
     return () => {
@@ -36,14 +38,7 @@ export default function Chat() {
     };
   }, []);
 
-  // Adapte les documents au format attendu par ConversationList (colonne de gauche).
-  const conversations = documents.map((doc) => ({
-    id: doc.id,
-    agentName: doc.original_name,
-    lastMessage: STATUS_LABEL[doc.status] || doc.status,
-    time: "",
-    unreadCount: 0,
-  }));
+  const hasIndexedDocuments = documents.some((doc) => doc.status === "indexed");
 
   function handleSend(question) {
     return sendChatMessage({ question }, getToken());
@@ -51,12 +46,14 @@ export default function Chat() {
 
   return (
     <div className="flex h-full overflow-hidden rounded-xl border border-slate-800">
-      <ConversationList
-        conversations={conversations}
-        activeId={activeId}
-        onSelect={setActiveId}
+      <DocumentContextPanel documents={documents} loading={loading} />
+      <ConversationThread
+        agentName="NexIA"
+        onSend={handleSend}
+        documentsReady={hasIndexedDocuments}
+        documentsChecked={!loading}
+        suggestions={SUGGESTED_QUESTIONS}
       />
-      <ConversationThread agentName="NexIA" onSend={handleSend} />
     </div>
   );
 }

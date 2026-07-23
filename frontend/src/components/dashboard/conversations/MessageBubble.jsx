@@ -1,4 +1,5 @@
 import { FileText } from "lucide-react";
+import AnswerText from "./AnswerText";
 
 /**
  * MessageBubble
@@ -28,7 +29,11 @@ export default function MessageBubble({ text, fromUser = false, time, sources = 
             : "border border-teal-400/20 bg-teal-400/5 text-slate-200"
         }`}
       >
-        <p className="whitespace-pre-wrap">{text}</p>
+        {fromUser ? (
+          <p className="whitespace-pre-wrap">{text}</p>
+        ) : (
+          <AnswerText text={text} />
+        )}
 
         {sourceNames.length > 0 && (
           <div className="mt-3 border-t border-teal-400/10 pt-2">

@@ -8,7 +8,9 @@ from sqlalchemy.orm import relationship
 
 from app.database.session import Base
 
-# Dimension de sortie de sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+# Dimension de sortie de intfloat/multilingual-e5-small.
+# Changer de modèle d'embeddings impose de réindexer tous les documents ; si la
+# dimension diffère, une migration de cette colonne est également nécessaire.
 EMBEDDING_DIM = 384
 
 

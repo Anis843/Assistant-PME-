@@ -8,13 +8,22 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
  * Lève une erreur avec le message du backend si la requête échoue.
  */
 async function apiFetch(path, options = {}) {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
+  let res;
+  try {
+    res = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+  } catch {
+    // fetch ne lève que sur erreur réseau : le serveur est injoignable.
+    // Sans ce message, l'utilisateur verrait « Failed to fetch ».
+    throw new Error(
+      "Impossible de contacter le serveur NexIA. Vérifiez qu'il est démarré, puis réessayez.",
+    );
+  }
 
   const data = await res.json().catch(() => null);
 
