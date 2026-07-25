@@ -11,6 +11,11 @@ class Settings(BaseSettings):
     secret_key: str
     access_token_expire_minutes: int = 60 * 24 * 7  # 7 jours
 
+    # Origines autorisées à appeler l'API, séparées par des virgules.
+    # En local, le serveur Vite ; en production, l'URL Vercel du frontend.
+    # Le navigateur bloque toute origine absente de cette liste.
+    cors_origins: str = "http://localhost:5173"
+
     # Fournisseur de LLM : "ollama" (local, données confidentielles),
     # "groq" ou "gemini" (hébergés, plus gros modèles et plus rapides — démos).
     llm_provider: str = "ollama"
@@ -27,10 +32,15 @@ class Settings(BaseSettings):
 
     # LLM hébergé via Google Gemini (AI Studio, tier gratuit).
     # La clé se définit via la variable d'environnement GEMINI_API_KEY.
-    gemini_api_key: str = "GEMINI_API_KEY"
+    gemini_api_key: str = ""
     gemini_model: str = "gemini-flash-latest"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        """Découpe cors_origins en liste, en ignorant les entrées vides."""
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
 
 settings = Settings()
