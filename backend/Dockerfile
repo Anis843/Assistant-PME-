@@ -36,7 +36,9 @@ RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTr
 
 COPY --chown=user . .
 
-# Port attendu par Hugging Face Spaces (doit correspondre à app_port du README).
 EXPOSE 7860
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860"]
+# Forme « shell » volontaire : elle seule interprète ${PORT}. La plupart des
+# hébergeurs (Railway, Cloud Run, Render…) imposent le port par cette variable
+# et considèrent le conteneur en échec s'il écoute ailleurs. 7860 en repli.
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}
