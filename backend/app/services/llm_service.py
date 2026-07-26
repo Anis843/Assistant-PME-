@@ -104,6 +104,17 @@ def _post(url: str, *, json: dict, headers: dict | None, timeout: float, service
             "démarré, puis réessayez."
         ) from exc
     except httpx.HTTPStatusError as exc:
+        # Le corps de la réponse porte le motif exact du refus : clé invalide,
+        # modèle inconnu, quota dépassé, paramètre non supporté… Sans lui, il ne
+        # reste qu'un code HTTP, insuffisant pour diagnostiquer quoi que ce soit.
+        # Tracé côté serveur uniquement : l'utilisateur ne doit pas voir de
+        # détail technique, encore moins pendant une démonstration.
+        logger.error(
+            "%s a refusé la requête (HTTP %s) : %s",
+            service,
+            exc.response.status_code,
+            exc.response.text[:500],
+        )
         raise RuntimeError(
             f"Le service d'IA ({service}) a refusé la requête "
             f"(erreur {exc.response.status_code}). Vérifiez la configuration."
