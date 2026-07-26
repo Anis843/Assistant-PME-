@@ -3,6 +3,11 @@ uvicorn[standard]
 sqlalchemy
 alembic
 pydantic-settings
+# L'extra [email] tire email-validator, requis par le type EmailStr utilisé
+# dans les schémas d'authentification. Sans lui, l'app importe correctement en
+# local (le paquet y traîne comme dépendance indirecte) mais refuse de démarrer
+# dans un conteneur construit à partir de ce seul fichier.
+pydantic[email]
 python-dotenv
 psycopg2-binary
 passlib[bcrypt]
