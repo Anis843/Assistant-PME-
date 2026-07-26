@@ -17,6 +17,20 @@
 
 ---
 
+## 🚀 Démo en ligne
+
+### **[assistant-pme-teal.vercel.app](https://assistant-pme-teal.vercel.app)**
+
+Créez un compte, importez un PDF, posez vos questions en français.
+
+> **Instance de démonstration.** Les documents importés sont effacés au
+> redémarrage du serveur, et la génération passe par un LLM hébergé.
+> En déploiement client, NexIA bascule en **mode local** (Ollama) par une simple
+> variable d'environnement : les documents ne quittent alors jamais votre
+> infrastructure.
+
+---
+
 ## 🎯 Le problème
 
 Les PME, cabinets comptables, avocats et agences immobilières croulent sous les documents : contrats, factures, procédures, comptes-rendus. Retrouver **la bonne information au bon moment** prend un temps précieux — et personne n'a le temps de tout relire.
@@ -250,11 +264,12 @@ modification du code : trois variables d'environnement suffisent.
 - [x] Import et indexation de PDF
 - [x] Recherche vectorielle (pgvector)
 - [x] Chat RAG avec réponses sourcées
-- [x] LLM interchangeable (Ollama / Gemini / Groq)
+- [x] LLM interchangeable (Ollama / Gemini / Groq / tout service compatible OpenAI)
+- [x] Déploiement en ligne (Vercel · Railway · Neon)
 - [ ] **Agents spécialisés** (Commercial, RH, Comptabilité…) — prompts et périmètres dédiés
 - [ ] Numéros de page précis dans les sources
 - [ ] OCR pour les PDF scannés
-- [ ] Déploiement cloud
+- [ ] Stockage objet pour les documents importés (persistance entre redémarrages)
 
 ---
 
