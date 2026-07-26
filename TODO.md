@@ -23,16 +23,21 @@ _(rien d'identifié à ce jour — à remplir dès qu'un bug casse le parcours d
       les documents. Soit l'implémenter (filtrer la recherche), soit le retirer
       du schéma.
 - [ ] **Débit limité sur Gemini (erreur 429) au bout de quelques questions.**
-      Le palier gratuit sature vite. Sans incidence en démo (Ollama n'a pas de
-      limite), mais bloquant si on héberge la démo publiquement sur Gemini.
+      Le palier gratuit sature vite. La démo en ligne tourne dessus : sans
+      incidence pour une démonstration pilotée (3-4 questions), mais à changer
+      avant de diffuser l'URL largement (LinkedIn, Upwork). Le provider
+      générique `openai` est en place : trois variables d'environnement
+      suffisent pour basculer sur Mistral ou Cerebras, sans toucher au code.
 - [ ] **Pas de numéro de page dans les sources.** On cite le document, pas
       l'endroit précis — c'est ce qui inspire le plus confiance en démo.
 - [ ] **Historique de conversation non persisté.** Rafraîchir la page vide le
       fil ; les questions précédentes ne sont pas non plus renvoyées au LLM
       (pas de questions de suivi type « et pour l'autre contrat ? »).
 - [ ] **Pas de suppression de document depuis l'interface.**
-- [ ] **Bundle frontend > 500 ko** (recharts). Découpage en chunks à prévoir
-      avant la mise en production.
+- [ ] **Documents perdus au redémarrage du serveur.** Le disque de l'hébergeur
+      est éphémère. Le chat continue de répondre (les extraits vectorisés sont
+      en base), mais réindexer un ancien document échoue. Un stockage objet
+      s'impose avant un vrai déploiement client.
 
 ---
 
@@ -52,7 +57,6 @@ _(rien d'identifié à ce jour — à remplir dès qu'un bug casse le parcours d
         réindexation complète de tous les documents.
 - [ ] **Agents spécialisés** (Commercial, RH, Comptabilité) : même moteur RAG,
       prompt et périmètre documentaire dédiés.
-- [ ] **Déploiement cloud** (backend + frontend + base managée).
 - [ ] **Autres formats** : Word, Excel, e-mails.
 - [ ] **Multi-utilisateurs par entreprise** (rôles, partage de documents).
 - [ ] **Export des réponses** (PDF, copier-coller enrichi).
@@ -78,3 +82,7 @@ _(rien d'identifié à ce jour — à remplir dès qu'un bug casse le parcours d
 - [x] Messages d'erreur explicites (serveur ou IA injoignable)
 - [x] Questions suggérées au démarrage
 - [x] README, licence et captures d'écran
+- [x] Découpage du bundle frontend (react / recharts)
+- [x] **Déploiement en ligne** — frontend Vercel, backend Railway (Docker),
+      base Neon (pgvector) :
+      [assistant-pme-teal.vercel.app](https://assistant-pme-teal.vercel.app)
