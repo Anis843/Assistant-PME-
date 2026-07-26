@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
+from app.core.config import settings
 from app.models import document, document_chunk
 from app.database.session import Base, engine
 from app.routers import auth,documents,chat
@@ -19,10 +20,11 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="NexIA API")
 
-# En dev, autorise le frontend Vite (généralement http://localhost:5173)
+# Origines autorisées, pilotées par la variable d'environnement CORS_ORIGINS :
+# le serveur Vite en local, l'URL Vercel du frontend en production.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

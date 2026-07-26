@@ -49,7 +49,7 @@ Le tout avec une garantie forte : en mode local (Ollama), **vos documents ne qui
 - 🔎 **Recherche sémantique** — recherche vectorielle par similarité cosinus via **pgvector**
 - 💬 **Chat en langage naturel** — réponses générées à partir de vos documents, en français
 - 📚 **Réponses sourcées** — chaque réponse cite les documents utilisés
-- 🔄 **LLM interchangeable** — bascule entre **Ollama** (local/confidentiel), **Google Gemini** ou **Groq** par une simple variable d'environnement
+- 🔄 **LLM interchangeable** — bascule entre **Ollama** (local/confidentiel), **Google Gemini**, **Groq** ou tout service compatible OpenAI (**Mistral**, **Cerebras**…) par une simple variable d'environnement
 - 🎨 **Interface moderne** — SPA React 19 + Tailwind CSS 4, responsive et soignée
 
 ---
@@ -200,6 +200,11 @@ Changez simplement `LLM_PROVIDER`, puis redémarrez le backend :
 | `ollama` | `llama3.2:3b` (local) | ✅ Données locales | — |
 | `gemini` | `gemini-flash-latest` | ❌ Hébergé | `GEMINI_API_KEY` |
 | `groq` | `llama-3.3-70b-versatile` | ❌ Hébergé | `GROQ_API_KEY` |
+| `openai` | *au choix* | ❌ Hébergé | `OPENAI_BASE_URL`, `OPENAI_API_KEY`, `OPENAI_MODEL` |
+
+Le mode `openai` cible **n'importe quel service exposant l'API OpenAI** — Mistral,
+Cerebras, Hugging Face, Together… Changer de fournisseur ne demande alors aucune
+modification du code : trois variables d'environnement suffisent.
 
 ---
 

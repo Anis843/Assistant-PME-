@@ -15,8 +15,9 @@ TOP_K = 5
 # peut être lent : on laisse de la marge pour éviter des timeouts.
 OLLAMA_TIMEOUT = 120.0
 
-# Groq est hébergé et très rapide : un délai plus court suffit.
-GROQ_TIMEOUT = 60.0
+# Les services hébergés répondent en quelques secondes : un délai plus court
+# qu'Ollama suffit largement.
+HOSTED_TIMEOUT = 60.0
 
 # Bornes de génération communes aux deux providers.
 TEMPERATURE = 0.2  # réponses factuelles et stables (peu de créativité)
@@ -141,30 +142,77 @@ def call_ollama(prompt: str) -> str:
     return data.get("response", "").strip()
 
 
-def call_groq(prompt: str) -> str:
-    """Appelle l'API Groq (hébergée, compatible OpenAI) et retourne le texte.
+def _call_openai_compatible(
+    prompt: str, *, base_url: str, api_key: str, model: str, service: str
+) -> str:
+    """Appelle un service exposant l'API OpenAI (POST {base_url}/chat/completions).
 
-    Nécessite GROQ_API_KEY dans l'environnement. Le prompt complet est envoyé
-    comme unique message utilisateur (les instructions y sont déjà intégrées).
+    C'est le format que respectent Groq, Mistral, Cerebras, Together, Hugging
+    Face et la plupart des autres : une seule implémentation les couvre tous,
+    seule l'URL de base change. Le prompt complet est envoyé comme unique
+    message utilisateur (les instructions y sont déjà intégrées).
     """
+    data = _post(
+        f"{base_url.rstrip('/')}/chat/completions",
+        json={
+            "model": model,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": TEMPERATURE,
+            "max_tokens": MAX_TOKENS,
+        },
+        headers={"Authorization": f"Bearer {api_key}"},
+        timeout=HOSTED_TIMEOUT,
+        service=service,
+    )
+    return data["choices"][0]["message"]["content"].strip()
+
+
+def call_groq(prompt: str) -> str:
+    """Appelle l'API Groq (hébergée, très rapide, tier gratuit)."""
     if not settings.groq_api_key:
         raise RuntimeError(
             "Provider LLM 'groq' sélectionné mais GROQ_API_KEY est absente."
         )
 
-    data = _post(
-        "https://api.groq.com/openai/v1/chat/completions",
-        json={
-            "model": settings.groq_model,
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": TEMPERATURE,
-            "max_tokens": MAX_TOKENS,
-        },
-        headers={"Authorization": f"Bearer {settings.groq_api_key}"},
-        timeout=GROQ_TIMEOUT,
+    return _call_openai_compatible(
+        prompt,
+        base_url="https://api.groq.com/openai/v1",
+        api_key=settings.groq_api_key,
+        model=settings.groq_model,
         service="Groq",
     )
-    return data["choices"][0]["message"]["content"].strip()
+
+
+def call_openai_compatible(prompt: str) -> str:
+    """Appelle le service OpenAI-compatible configuré par variables d'environnement.
+
+    Permet de changer de fournisseur (Mistral, Cerebras, Hugging Face…) sans
+    toucher au code : seules OPENAI_BASE_URL, OPENAI_API_KEY et OPENAI_MODEL
+    changent. Indispensable quand un fournisseur refuse une inscription ou
+    sature son palier gratuit en pleine période de démonstrations.
+    """
+    missing = [
+        name
+        for name, value in (
+            ("OPENAI_BASE_URL", settings.openai_base_url),
+            ("OPENAI_API_KEY", settings.openai_api_key),
+            ("OPENAI_MODEL", settings.openai_model),
+        )
+        if not value
+    ]
+    if missing:
+        raise RuntimeError(
+            "Provider LLM 'openai' sélectionné mais ces variables sont "
+            f"absentes : {', '.join(missing)}."
+        )
+
+    return _call_openai_compatible(
+        prompt,
+        base_url=settings.openai_base_url,
+        api_key=settings.openai_api_key,
+        model=settings.openai_model,
+        service="LLM hébergé",
+    )
 
 
 def call_gemini(prompt: str) -> str:
@@ -199,7 +247,7 @@ def call_gemini(prompt: str) -> str:
             },
         },
         headers={"x-goog-api-key": settings.gemini_api_key},
-        timeout=GROQ_TIMEOUT,
+        timeout=HOSTED_TIMEOUT,
         service="Gemini",
     )
 
@@ -229,6 +277,7 @@ _PROVIDERS = {
     "ollama": call_ollama,
     "groq": call_groq,
     "gemini": call_gemini,
+    "openai": call_openai_compatible,
 }
 
 

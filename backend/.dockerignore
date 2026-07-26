@@ -1,0 +1,22 @@
+# Secrets — ne doivent JAMAIS être copiés dans l'image : celle-ci est
+# reconstruite sur un serveur distant et ses couches sont lisibles.
+.env
+.env.local
+
+# Environnements et caches Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Documents importés en local : sans intérêt en production, et potentiellement
+# volumineux ou confidentiels.
+uploads/
+
+# Divers
+.git/
+.gitignore
