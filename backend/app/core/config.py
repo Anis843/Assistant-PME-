@@ -53,8 +53,20 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins_list(self) -> list[str]:
-        """Découpe cors_origins en liste, en ignorant les entrées vides."""
-        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+        """Découpe cors_origins en liste, en ignorant les entrées vides.
+
+        La barre oblique finale est retirée : le navigateur envoie une origine
+        sans barre (« https://exemple.app »), et la comparaison du middleware
+        CORS est une égalité stricte. Une barre en trop dans la variable
+        d'environnement suffit donc à faire rejeter toutes les requêtes, avec
+        pour seul indice un 400 sur la requête OPTIONS.
+        """
+        origins = []
+        for origin in self.cors_origins.split(","):
+            origin = origin.strip().rstrip("/")
+            if origin:
+                origins.append(origin)
+        return origins
 
 
 settings = Settings()
