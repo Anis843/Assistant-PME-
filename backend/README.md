@@ -31,8 +31,10 @@ n'expose que l'API.
 | `DATABASE_URL` | PostgreSQL avec l'extension pgvector |
 | `SECRET_KEY` | Signature des tokens JWT |
 | `CORS_ORIGINS` | Origines autorisées, séparées par des virgules (l'URL du frontend) |
-| `LLM_PROVIDER` | `ollama` \| `groq` \| `gemini` |
+| `LLM_PROVIDER` | `ollama` \| `gemini` \| `groq` \| `openai` |
+| `GEMINI_API_KEY` | Requise si `LLM_PROVIDER=gemini` |
 | `GROQ_API_KEY` | Requise si `LLM_PROVIDER=groq` |
+| `OPENAI_BASE_URL` / `OPENAI_API_KEY` / `OPENAI_MODEL` | Requises si `LLM_PROVIDER=openai` — tout service exposant l'API OpenAI (Mistral, Cerebras, Hugging Face…) |
 
 Voir [`.env.example`](.env.example) pour la liste complète.
 

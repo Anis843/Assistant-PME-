@@ -16,8 +16,9 @@ class Settings(BaseSettings):
     # Le navigateur bloque toute origine absente de cette liste.
     cors_origins: str = "http://localhost:5173"
 
-    # Fournisseur de LLM : "ollama" (local, données confidentielles),
-    # "groq" ou "gemini" (hébergés, plus gros modèles et plus rapides — démos).
+    # Fournisseur de LLM : "ollama" (local, données confidentielles), "gemini",
+    # "groq", ou "openai" pour n'importe quel service exposant l'API OpenAI
+    # (Mistral, Cerebras, Hugging Face, Together…) — voir openai_base_url.
     llm_provider: str = "ollama"
 
     # LLM local via Ollama. En dev, le serveur Ollama écoute sur le port 11434.
@@ -34,6 +35,19 @@ class Settings(BaseSettings):
     # La clé se définit via la variable d'environnement GEMINI_API_KEY.
     gemini_api_key: str = ""
     gemini_model: str = "gemini-flash-latest"
+
+    # Fournisseur générique exposant l'API OpenAI (/chat/completions). La quasi-
+    # totalité des services hébergés la respectent : changer de fournisseur ne
+    # demande alors que trois variables d'environnement, pas une ligne de code.
+    # Utile quand un service refuse une inscription ou sature son tier gratuit.
+    #
+    # Exemples de OPENAI_BASE_URL :
+    #   Mistral   https://api.mistral.ai/v1
+    #   Cerebras  https://api.cerebras.ai/v1
+    #   HuggingFace https://router.huggingface.co/v1
+    openai_base_url: str = ""
+    openai_api_key: str = ""
+    openai_model: str = ""
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
