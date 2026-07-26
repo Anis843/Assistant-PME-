@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
@@ -22,6 +24,14 @@ app = FastAPI(title="NexIA API")
 
 # Origines autorisées, pilotées par la variable d'environnement CORS_ORIGINS :
 # le serveur Vite en local, l'URL Vercel du frontend en production.
+#
+# Tracé au démarrage : une origine mal orthographiée ne se manifeste que par un
+# « 400 Bad Request » sur la requête OPTIONS, sans indiquer ce qui était attendu.
+# Comparer cette ligne à l'en-tête Origin du navigateur résout le problème.
+logging.getLogger("uvicorn.error").info(
+    "CORS — origines autorisées : %s", settings.cors_origins_list
+)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
