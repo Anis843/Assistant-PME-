@@ -49,7 +49,13 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     openai_model: str = ""
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    # str_strip_whitespace : les interfaces d'hébergeurs ajoutent facilement un
+    # espace ou un retour à la ligne au collage d'une variable. Invisible à
+    # l'œil, mais suffisant pour casser une clé d'API ou un nom de modèle inséré
+    # dans une URL — avec des messages d'erreur qui n'y font aucune référence.
+    model_config = SettingsConfigDict(
+        env_file=".env", extra="ignore", str_strip_whitespace=True
+    )
 
     @property
     def cors_origins_list(self) -> list[str]:

@@ -237,9 +237,14 @@ def call_gemini(prompt: str) -> str:
             "Provider LLM 'gemini' sélectionné mais GEMINI_API_KEY est absente."
         )
 
+    # Google documente ses modèles sous la forme « models/gemini-... ». Le
+    # préfixe figure déjà dans l'URL : le conserver dans la variable le
+    # dupliquerait, et l'API répond alors « unexpected model name format »
+    # sans indiquer que le nom a été recopié tel quel depuis la documentation.
+    model = settings.gemini_model.removeprefix("models/")
     url = (
         "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"{settings.gemini_model}:generateContent"
+        f"{model}:generateContent"
     )
     data = _post(
         url,
