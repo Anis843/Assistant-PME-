@@ -77,8 +77,15 @@ Un `localhost` dans la barre d'adresse dit l'inverse.
 **Question à poser** (une seule, celle-ci) :
 
 ```
-Quelles sont les conditions de résiliation ?
+Quel est le préavis de résiliation du contrat de prestation ?
 ```
+
+**Réponse attendue : 2 mois**, source `Contrat_prestation_AtlasDigital.pdf`.
+
+> ⚠️ Ne pas poser « Quelles sont les conditions de résiliation ? » : le bail
+> commercial y répond aussi (résiliation triennale). Deux sources remontent et
+> la démonstration paraît imprécise. Nommer « contrat de prestation » dans la
+> question suffit à lever l'ambiguïté.
 
 *Laisser la réponse s'afficher sans parler.* Puis :
 
@@ -102,14 +109,44 @@ Quelles sont les conditions de résiliation ?
 
 ---
 
+## 📁 Le jeu de documents
+
+Quatre documents d'entreprise, prêts dans `NexIA-demo-documents` :
+
+| Document | Rôle dans la démo |
+|---|---|
+| `Bail_commercial_Petale_et_Co.pdf` | Pré-indexé |
+| `Facture_FA-2026-0087_Cabinet_Mercier.pdf` | Pré-indexé |
+| `Reglement_interieur_Groupe_Vertima.pdf` | Pré-indexé |
+| `Contrat_prestation_AtlasDigital.pdf` | **Gardé pour l'upload en direct** |
+
+Importer le contrat en direct puis l'interroger immédiatement est le moment le
+plus convaincant de la démonstration : il prouve que le document devient
+exploitable en quelques secondes.
+
+---
+
 ## 💬 Questions de secours
 
-Si la première réponse est décevante, enchaîner avec l'une de celles-ci
-(testées, une seule source, réponse nette) :
+Si la première réponse déçoit, enchaîner avec l'une de celles-ci. Toutes ont
+été vérifiées : **une seule source, réponse nette**.
 
-- « Quel est le montant TTC de la facture ? »
-- « Combien de jours de télétravail sont autorisés ? »
-- « Quel est le préavis de résiliation du contrat ? »
+| Question | Réponse attendue | Source |
+|---|---|---|
+| « Quel est le montant TTC de la facture ? » | 1 944,00 € | Facture |
+| « Combien de jours de télétravail sont autorisés ? » | 2 jours par semaine | Règlement intérieur |
+| « Quel est le loyer mensuel du bail commercial ? » | 1 100 € HT (+ 150 € de charges) | Bail |
+| « Combien de jours de congés payés par an ? » | 25 jours (+ 10 RTT) | Règlement intérieur |
+| « Quel est le délai de livraison de la première version du site ? » | 6 semaines | Contrat |
+| « Quel est le montant du dépôt de garantie ? » | 3 300 € | Bail |
+
+### Questions à ne PAS poser
+
+Elles remontent plusieurs documents et brouillent la démonstration :
+
+- « Quelles sont les conditions de résiliation ? » → contrat **et** bail
+- « Quelles sont les pénalités de retard ? » → contrat **et** facture
+- « Quel est le montant ? » → les trois documents chiffrés
 
 ---
 
