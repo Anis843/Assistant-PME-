@@ -9,19 +9,29 @@ Règle d'or : **ne jamais improviser**. Répéter 3 fois avant d'enregistrer.
 
 ## ✅ Préparation (à faire AVANT d'enregistrer)
 
+**On enregistre sur l'instance en ligne**, pas en local :
+**https://assistant-pme-teal.vercel.app**
+
+Une vraie URL prouve au prospect que le produit est utilisable aujourd'hui.
+Un `localhost` dans la barre d'adresse dit l'inverse.
+
 | # | Vérification |
 |---|---|
-| 1 | Backend démarré : `uvicorn app.main:app --reload` |
-| 2 | Frontend démarré : `npm run dev` |
-| 3 | `LLM_PROVIDER=gemini` dans `.env` → **réponses instantanées**, pas de démarrage à froid |
-| 4 | Poser une question « à blanc » avant d'enregistrer (réveille le service) |
-| 5 | Compte de démo connecté, avec les 4 documents **déjà indexés** |
-| 6 | Garder **un PDF de côté** (non importé) pour la démo d'upload en direct |
-| 7 | Navigateur en plein écran, zoom 100 %, onglets personnels fermés |
-| 8 | Notifications système coupées |
+| 1 | Ouvrir `/api/health` sur le backend → doit répondre `{"status":"ok"}` |
+| 2 | **Réveiller le service 5 min avant** : se connecter et poser une question à blanc |
+| 3 | Compte de démo connecté, avec 3-4 documents **déjà indexés** |
+| 4 | Garder **un PDF de côté** (non importé) pour la démo d'upload en direct |
+| 5 | Vérifier que la question prévue donne une bonne réponse **avant** d'enregistrer |
+| 6 | Navigateur en plein écran, zoom 100 %, onglets personnels fermés |
+| 7 | Notifications système coupées |
+| 8 | Barre de favoris masquée (`Ctrl + Maj + B`) |
 
-> ⚠️ Le point 3 est le plus important : avec Ollama en local, le premier appel
-> peut prendre 30 s (chargement du modèle). C'est mortel en vidéo.
+> ⚠️ Le point 2 est le plus important. Le serveur s'endort après une période
+> d'inactivité : le premier accès peut prendre 30 s. C'est mortel en vidéo.
+
+> ⚠️ Le point 3 aussi : des documents d'entreprise crédibles (contrat, facture,
+> procédure). Un prospect PME ne se projette pas dans un document sans rapport
+> avec son métier.
 
 ---
 
@@ -115,9 +125,35 @@ Si la première réponse est décevante, enchaîner avec l'une de celles-ci
 
 ---
 
+## 🔁 Répétition (avant d'allumer la caméra)
+
+Enchaîner le parcours complet **3 fois, chronomètre en main**, sans enregistrer :
+
+```
+Landing → Connexion → Documents → Upload → Indexé → Chat → Question → Sources
+```
+
+Objectif : le faire **sans notes, en moins de 2 minutes**. Tant que tu regardes
+ce fichier pendant le parcours, tu n'es pas prêt à enregistrer.
+
+Ce que la répétition sert à découvrir — et qu'on ne voit qu'en le faisant :
+- combien de temps prend réellement l'indexation
+- si la réponse à la question prévue est bonne **à tous les coups**
+- où tu hésites (c'est là qu'il faudra couper au montage)
+
+---
+
 ## 🎥 Enregistrement
 
 - Outil : OBS Studio (gratuit) ou l'enregistreur intégré de Windows (`Win + G`).
 - Format : 1920 × 1080, 30 fps.
-- Faire une prise complète sans coupure — quitte à recommencer.
-- Un GIF court (le passage question → réponse → sources) pour le README.
+- **3 à 4 prises complètes**, sans coupure, sans revisionner entre chaque.
+
+> Ne cherche pas la prise parfaite au premier essai. Enchaîne les quatre, puis
+> garde la meilleure. Revisionner entre deux prises fait perdre du temps et
+> augmente la crispation — c'est ce qui s'entend le plus à l'écoute.
+
+Une prise est bonne si : rien n'a planté, la réponse est correcte, et le bloc
+Sources est visible. Le reste (une hésitation, un « euh ») se coupe au montage.
+
+- Extraire aussi un GIF court (question → réponse → sources) pour le README.
