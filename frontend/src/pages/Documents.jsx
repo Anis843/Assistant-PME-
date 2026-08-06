@@ -58,6 +58,29 @@ export default function Documents() {
     };
   }, []);
 
+  // L'indexation tourne en tâche de fond côté serveur : la réponse à l'upload
+  // arrive alors que le document est encore au statut « Importé ». Sans ce
+  // sondage, le passage à « Indexé » n'apparaît qu'après un rechargement manuel
+  // de la page — l'utilisateur croit que rien ne se passe.
+  const hasPendingDocument = documents.some(
+    (doc) => doc.status === "uploaded" || doc.status === "processing",
+  );
+
+  useEffect(() => {
+    if (!hasPendingDocument) return;
+
+    const interval = setInterval(() => {
+      listDocuments(getToken())
+        .then(setDocuments)
+        .catch(() => {
+          // Échec ponctuel du sondage : le prochain tour réessaiera.
+        });
+    }, 2000);
+
+    // S'arrête dès qu'aucun document n'est en attente, et au démontage de la page.
+    return () => clearInterval(interval);
+  }, [hasPendingDocument]);
+
   async function refreshDocuments() {
     const data = await listDocuments(getToken());
     setDocuments(data);
