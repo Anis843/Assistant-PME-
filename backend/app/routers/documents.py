@@ -45,7 +45,15 @@ def list_documents(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return db.query(Document).filter(Document.user_id == current_user.id).all()
+    # Le plus récent d'abord : sans tri explicite, Postgres ne garantit aucun
+    # ordre et un document qu'on vient d'importer peut s'afficher en plein
+    # milieu de la liste.
+    return (
+        db.query(Document)
+        .filter(Document.user_id == current_user.id)
+        .order_by(Document.uploaded_at.desc())
+        .all()
+    )
 
 
 @router.post("/search", response_model=list[SearchResult])
