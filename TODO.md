@@ -10,9 +10,19 @@ Suivi des bugs et améliorations, classés par impact sur l'objectif actuel :
 
 ## 🔴 Critique — bloque une démonstration
 
-_(rien d'identifié à ce jour — à remplir dès qu'un bug casse le parcours de démo)_
-
-- [ ] …
+- [ ] **L'application n'est pas responsive** (la landing page, si). Échéance :
+      **avant le Jour 14**, date de diffusion de l'URL sur LinkedIn et Upwork.
+      Un prospect qui ouvre le lien depuis son téléphone tombe aujourd'hui sur
+      une interface cassée.
+      - `Sidebar` : `w-60` figé (240 px), soit 64 % d'un écran de 375 px.
+        À transformer en tiroir avec bouton hamburger dans le `Header`.
+      - `DocumentContextPanel` (page Chat) : `w-80` figé (320 px). Avec la
+        sidebar, 560 px de chrome avant le premier message. À masquer sous
+        un point de rupture.
+      - Page Documents : `<table>` sans conteneur défilant. À convertir en
+        cartes sur petit écran.
+      - Estimation : 2 à 3 h. Sans incidence sur la vidéo de démonstration,
+        enregistrée sur ordinateur en 1920 × 1080.
 
 ---
 
