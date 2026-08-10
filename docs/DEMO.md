@@ -162,6 +162,49 @@ Elles remontent plusieurs documents et brouillent la démonstration :
 
 ---
 
+## 🔇 Version muette (recommandée)
+
+Pas de voix off : le parcours à l'écran, et des textes ajoutés au montage.
+
+La plupart des vidéos sont regardées **sans le son** sur LinkedIn : des textes
+lisibles y portent le message mieux qu'une narration. Et une prise ne se
+retourne plus parce qu'on a buté sur un mot — seul le parcours compte.
+
+Contrepartie : **ralentir**. Laisser chaque texte 3 à 4 secondes à l'écran,
+sinon il est illisible. Ménager des pauses là où on aurait parlé.
+
+### Les textes, dans l'ordre
+
+| Moment | Écran | Texte affiché |
+|---|---|---|
+| 0:00 | Landing | Les PME perdent des heures à chercher une information dans leurs documents. |
+| 0:08 | Landing | NexIA répond à leur place. |
+| 0:15 | Connexion | Chaque entreprise a son espace sécurisé. |
+| 0:25 | Documents | J'importe un contrat. |
+| 0:33 | Upload | Extraction, découpage, indexation — automatiques. |
+| 0:42 | Statut « Indexé » | Le document est interrogeable. |
+| 0:50 | Chat | Je pose ma question, en français. |
+| 1:00 | *Réponse qui s'affiche* | *(aucun texte — laisser voir)* |
+| 1:12 | Réponse | Réponse en quelques secondes. |
+| 1:18 | **Bloc Sources** ⭐ | Et la source est citée. Rien n'est inventé. |
+| 1:32 | Chat | Vos documents peuvent rester sur vos serveurs. |
+| 1:45 | Fin | NexIA — vos documents, vos questions, vos réponses. |
+| 1:52 | Fin | assistant-pme-teal.vercel.app |
+
+> Le texte de 1:18 est le plus important de la vidéo. C'est la traçabilité qui
+> distingue NexIA d'un chatbot, et ce qui rassure un avocat ou un comptable.
+> Lui laisser 4 secondes pleines, avec le bloc Sources bien visible.
+
+### Outils de montage
+
+- **Clipchamp** — déjà installé sur Windows 11, suffisant pour des textes.
+- **CapCut** — gratuit, plus rapide pour les sous-titres.
+
+Pas de musique, pas de transitions, pas d'animation de titre. Un texte net sur
+fond sombre, c'est tout ce qu'il faut.
+
+---
+
 ## 🔁 Répétition (avant d'allumer la caméra)
 
 Enchaîner le parcours complet **3 fois, chronomètre en main**, sans enregistrer :
