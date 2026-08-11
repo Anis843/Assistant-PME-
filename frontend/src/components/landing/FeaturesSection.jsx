@@ -1,101 +1,54 @@
-import {
-  MessageCircle,
-  Bot,
-  BarChart3,
-  Plug,
-  Lock,
-  Rocket,
-} from "lucide-react";
+import { FileSearch, Quote, ShieldCheck } from "lucide-react";
 import FeatureCard from "./FeatureCard";
 
+// Chaque élément listé ici doit être démontrable en direct dans l'application.
+// Une promesse invérifiable coûte plus cher qu'une fonctionnalité manquante :
+// le prospect qui découvre l'écart cesse de croire tout le reste.
 const FEATURES = [
   {
     color: "teal",
-    category: "Conversation",
-    icon: MessageCircle,
-    title: "Chat intelligent multi-contexte",
+    category: "Recherche",
+    icon: FileSearch,
+    title: "Trouve l'information, pas seulement le mot",
     description:
-      "Votre assistant mémorise chaque échange, comprend le contexte métier et s'adapte au ton de votre entreprise. Intégré à votre CRM et vos outils.",
+      "La recherche porte sur le sens. Posez votre question avec vos mots : NexIA retrouve le passage pertinent même s'il est formulé autrement dans le document.",
     items: [
-      "Mémoire longue durée",
-      "Contexte multi-sessions",
-      "Ton personnalisable",
-      "Support 12 langues",
+      "Recherche vectorielle",
+      "Modèle adapté au français",
+      "Découpage automatique des PDF",
     ],
   },
   {
     color: "violet",
-    category: "Agents",
-    icon: Bot,
-    title: "Agents autonomes spécialisés",
+    category: "Fiabilité",
+    icon: Quote,
+    title: "Chaque réponse cite son document",
     description:
-      "Déployez des agents dédiés par département — comptabilité, RH, support client, commercial. Chacun entraîné sur vos données et processus.",
+      "NexIA répond uniquement à partir de vos documents et affiche celui dont provient l'information. Quand la réponse ne s'y trouve pas, il le dit au lieu d'inventer.",
     items: [
-      "Agent facturation",
-      "Agent RH & recrutement",
-      "Agent support client",
-      "Workflows LangChain",
-    ],
-  },
-  {
-    color: "orange",
-    category: "Analyses",
-    icon: BarChart3,
-    title: "Rapports & insights automatiques",
-    description:
-      "Connectez vos sources de données. L'IA génère des rapports hebdomadaires, détecte des anomalies et vous alerte avant que les problèmes émergent.",
-    items: ["RAG sur vos données", "Alertes proactives", "Export PDF/Excel"],
-  },
-  {
-    color: "teal",
-    category: "Intégrations",
-    icon: Plug,
-    title: "Connexion à votre stack existante",
-    description:
-      "API REST + webhooks. Connectez-vous à Salesforce, HubSpot, Notion, Slack, Google Workspace et +80 autres outils sans ligne de code.",
-    items: [
-      "API FastAPI native",
-      "Webhooks temps-réel",
-      "OAuth2 sécurisé",
-      "+80 connecteurs",
+      "Document source affiché",
+      "Aucune source citée si l'information est absente",
+      "Réponses en français",
     ],
   },
   {
     color: "green",
-    category: "Sécurité",
-    icon: Lock,
-    title: "Données hébergées en France",
+    category: "Confidentialité",
+    icon: ShieldCheck,
+    title: "Vos documents peuvent rester chez vous",
     description:
-      "Hébergement souverain OVH Cloud. Vos données ne quittent jamais le territoire français. Certifié RGPD, ISO 27001. Chiffrement AES-256.",
+      "Le moteur d'IA se change par une simple variable de configuration. En mode local, aucun de vos documents ne sort de votre infrastructure.",
     items: [
-      "Hébergement Paris/Lyon",
-      "RGPD natif",
-      "ISO 27001",
-      "Audit trail complet",
-    ],
-  },
-  {
-    color: "red",
-    category: "Déploiement",
-    icon: Rocket,
-    title: "En production en 48h chrono",
-    description:
-      "Notre équipe configure, intègre et forme vos équipes. Migration assistée depuis votre système actuel. Support dédié les 30 premiers jours.",
-    items: [
-      "Onboarding guidé",
-      "Migration assistée",
-      "Formation équipes",
-      "Support 30j dédié",
+      "Mode local disponible",
+      "Ou service hébergé, au choix",
+      "Aucune dépendance à un fournisseur unique",
     ],
   },
 ];
 
 /**
  * FeaturesSection
- * Section complète "Tout ce dont votre PME a besoin" avec les 6 FeatureCard
- * (2 rangées de 3 sur desktop).
- * La liste FEATURES est définie ici — passer `features` en prop si elle
- * doit devenir dynamique (CMS, i18n...).
+ * Les trois capacités réelles du produit, chacune vérifiable dans la démo.
  */
 export default function FeaturesSection() {
   return (
@@ -105,11 +58,11 @@ export default function FeaturesSection() {
           Fonctionnalités
         </p>
         <h2 className="mt-4 text-4xl font-extrabold text-white">
-          Tout ce dont votre PME a besoin
+          Ce que NexIA fait, exactement
         </h2>
         <p className="mt-4 text-slate-400">
-          Une plateforme complète, pas un chatbot. Des agents métier qui
-          travaillent pour vous.
+          Importez vos PDF, posez vos questions, obtenez des réponses sourcées.
+          Rien de plus, rien de moins.
         </p>
       </div>
 
