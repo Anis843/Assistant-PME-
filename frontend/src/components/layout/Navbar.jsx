@@ -2,12 +2,10 @@ import { Link } from "react-router-dom";
 import Button from "../ui/Button";
 import Badge from "../ui/Badge";
 
-const NAV_LINKS = [
-  { href: "#fonctionnalites", label: "Fonctionnalités" },
-  { href: "#integrations", label: "Intégrations" },
-  { href: "#tarifs", label: "Tarifs" },
-  { href: "#docs", label: "Docs" },
-];
+// Une seule ancre : les sections « Intégrations », « Tarifs » et « Docs »
+// n'existent plus. Un lien de navigation qui ne mène nulle part est le premier
+// signe qu'un visiteur interprète comme un produit inachevé.
+const NAV_LINKS = [{ href: "#fonctionnalites", label: "Fonctionnalités" }];
 
 /**
  * Navbar
