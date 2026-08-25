@@ -105,7 +105,7 @@ export default function Documents() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-lg font-semibold text-white">Documents</h1>
           <p className="text-sm text-slate-400">
@@ -144,27 +144,36 @@ export default function Documents() {
             <p className="text-sm text-slate-400">Aucun document importé pour le moment.</p>
           </div>
         ) : (
+          // La date passe à la ligne sous le nom sur petit écran : trois
+          // colonnes ne tiennent pas, et c'est le statut qu'on vient consulter.
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-slate-800 text-xs uppercase tracking-wide text-slate-500">
                 <th className="px-4 py-3 font-medium">Nom</th>
                 <th className="px-4 py-3 font-medium">Statut</th>
-                <th className="px-4 py-3 font-medium">Importé le</th>
+                <th className="hidden px-4 py-3 font-medium sm:table-cell">Importé le</th>
               </tr>
             </thead>
             <tbody>
               {documents.map((doc) => (
                 <tr key={doc.id} className="border-b border-slate-800/60 last:border-0">
-                  <td className="flex items-center gap-2 px-4 py-3 text-slate-200">
-                    <FileText className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
-                    {doc.original_name}
+                  <td className="px-4 py-3 text-slate-200">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
+                      <span className="break-all">{doc.original_name}</span>
+                    </div>
+                    <span className="mt-1 block text-xs text-slate-500 sm:hidden">
+                      {formatDate(doc.uploaded_at)}
+                    </span>
                   </td>
                   <td className="px-4 py-3">
                     <Badge variant="label" color={STATUS_COLOR[doc.status]}>
                       {STATUS_LABEL[doc.status]}
                     </Badge>
                   </td>
-                  <td className="px-4 py-3 text-slate-400">{formatDate(doc.uploaded_at)}</td>
+                  <td className="hidden px-4 py-3 text-slate-400 sm:table-cell">
+                    {formatDate(doc.uploaded_at)}
+                  </td>
                 </tr>
               ))}
             </tbody>

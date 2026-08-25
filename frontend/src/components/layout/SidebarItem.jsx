@@ -9,12 +9,20 @@ import { NavLink } from "react-router-dom";
  * - icon: composant lucide-react
  * - label: string        -> texte affiché
  * - end: boolean          -> passe à NavLink pour un match exact (ex: "/")
+ * - onNavigate: () => void -> appelé après le clic, pour refermer le tiroir mobile
  */
-export default function SidebarItem({ to, icon: Icon, label, end = false }) {
+export default function SidebarItem({
+  to,
+  icon: Icon,
+  label,
+  end = false,
+  onNavigate,
+}) {
   return (
     <NavLink
       to={to}
       end={end}
+      onClick={onNavigate}
       className={({ isActive }) =>
         `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
           isActive
