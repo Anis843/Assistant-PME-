@@ -34,7 +34,10 @@ class Settings(BaseSettings):
     # LLM hébergé via Google Gemini (AI Studio, tier gratuit).
     # La clé se définit via la variable d'environnement GEMINI_API_KEY.
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-flash-latest"
+    # Modèle épinglé, jamais un alias : « gemini-flash-latest » a basculé vers
+    # un modèle retiré aux nouveaux comptes, et l'appel se mettait alors à
+    # rester sans réponse pendant plus d'une minute au lieu d'échouer.
+    gemini_model: str = "gemini-3.6-flash"
 
     # Fournisseur générique exposant l'API OpenAI (/chat/completions). La quasi-
     # totalité des services hébergés la respectent : changer de fournisseur ne

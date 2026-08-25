@@ -23,15 +23,10 @@ HOSTED_TIMEOUT = 60.0
 TEMPERATURE = 0.2  # réponses factuelles et stables (peu de créativité)
 MAX_TOKENS = 512  # plafonne la longueur de la réponse
 
-# Gemini compte les jetons de réflexion interne dans ce plafond. Même en ayant
-# désactivé la réflexion, on garde de la marge : une réponse tronquée en plein
-# milieu est bien pire qu'une réponse un peu longue.
+# Gemini compte ses jetons de réflexion interne dans ce plafond. On garde de la
+# marge : une réponse tronquée en plein milieu est bien pire qu'une réponse un
+# peu longue.
 GEMINI_MAX_TOKENS = 2048
-
-# Budget de réflexion interne de Gemini. Le modèle refuse 0 (erreur 400) ;
-# 128 jetons suffisent pour une tâche d'extraction et laissent tout le reste
-# du plafond à la réponse elle-même.
-GEMINI_THINKING_BUDGET = 128
 
 # Filtrage des sources affichées. Valeurs calibrées pour multilingual-e5-small,
 # qui comprime les scores dans une bande étroite (~0.70 à ~0.85) :
@@ -120,6 +115,11 @@ def _post(url: str, *, json: dict, headers: dict | None, timeout: float, service
             f"(erreur {exc.response.status_code}). Vérifiez la configuration."
         ) from exc
     except httpx.TimeoutException as exc:
+        # Tracé au même titre qu'un refus : un fournisseur qui cesse de répondre
+        # ressemble, côté utilisateur, à une application lente. C'est ce qui est
+        # arrivé avec un modèle retiré du catalogue, dont les appels restaient
+        # sans réponse au lieu d'échouer franchement.
+        logger.error("%s n'a pas répondu en %ss.", service, timeout)
         raise RuntimeError(
             f"Le service d'IA ({service}) a mis trop de temps à répondre. "
             "Réessayez dans un instant."
@@ -250,16 +250,13 @@ def call_gemini(prompt: str) -> str:
         url,
         json={
             "contents": [{"parts": [{"text": prompt}]}],
+            # Pas de thinkingConfig : imposer un budget de réflexion fait passer
+            # la réponse de ~5 s à ~20 s sans rien améliorer sur une tâche
+            # d'extraction, et un budget nul est refusé (erreur 400). Laisser le
+            # modèle décider est à la fois le plus rapide et le plus simple.
             "generationConfig": {
                 "temperature": TEMPERATURE,
                 "maxOutputTokens": GEMINI_MAX_TOKENS,
-                # Les modèles Flash récents « réfléchissent » avant de répondre,
-                # et ces jetons de réflexion consomment maxOutputTokens : la
-                # réponse visible se retrouve tronquée. Extraire une information
-                # d'un extrait ne demande presque aucun raisonnement, mais ce
-                # modèle refuse un budget nul (erreur 400) : on le réduit au
-                # minimum utile.
-                "thinkingConfig": {"thinkingBudget": GEMINI_THINKING_BUDGET},
             },
         },
         headers={"x-goog-api-key": settings.gemini_api_key},
