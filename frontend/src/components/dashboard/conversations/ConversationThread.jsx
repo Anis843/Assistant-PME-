@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, FileUp, Sparkles } from "lucide-react";
+import { ArrowRight, FileText, FileUp, Sparkles } from "lucide-react";
 import MessageBubble from "./MessageBubble";
 
 /**
@@ -15,6 +15,8 @@ import MessageBubble from "./MessageBubble";
  * - documentsReady: boolean   -> au moins un document est indexé
  * - documentsChecked: boolean -> la liste des documents a fini de charger
  * - suggestions: string[]     -> questions proposées au démarrage
+ * - indexedCount: number      -> nombre de documents indexés (affiché sur mobile)
+ * - onShowDocuments: () => void -> ouvre le volet des documents (mobile)
  */
 function currentTime() {
   return new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
@@ -26,6 +28,8 @@ export default function ConversationThread({
   documentsReady = true,
   documentsChecked = true,
   suggestions = [],
+  indexedCount = 0,
+  onShowDocuments,
 }) {
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState("");
@@ -80,14 +84,28 @@ export default function ConversationThread({
 
   return (
     <div className="flex h-full flex-1 flex-col">
-      <div className="flex items-center justify-between border-b border-slate-800 px-5 py-4">
+      <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-4 py-4 sm:px-5">
         <span className="font-semibold text-white">{agentName}</span>
-        <span className="rounded-md bg-teal-400/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-teal-300">
-          En ligne
-        </span>
+
+        <div className="flex items-center gap-2">
+          {/* Seul accès au périmètre documentaire en dessous de `lg`, où le
+              panneau est replié en volet. */}
+          <button
+            type="button"
+            onClick={onShowDocuments}
+            className="flex items-center gap-1.5 rounded-lg border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-teal-400/40 hover:text-teal-200 lg:hidden"
+          >
+            <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+            {indexedCount}
+          </button>
+
+          <span className="rounded-md bg-teal-400/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-teal-300">
+            En ligne
+          </span>
+        </div>
       </div>
 
-      <div className="flex-1 space-y-4 overflow-y-auto p-5">
+      <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-5">
         {/* Aucun document indexé : on l'annonce et on renvoie vers l'import. */}
         {documentsChecked && !documentsReady && (
           <div className="rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">

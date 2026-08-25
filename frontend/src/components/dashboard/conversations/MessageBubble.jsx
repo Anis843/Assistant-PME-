@@ -23,7 +23,7 @@ export default function MessageBubble({ text, fromUser = false, time, sources = 
   return (
     <div className={`flex flex-col ${fromUser ? "items-end" : "items-start"}`}>
       <div
-        className={`max-w-[75%] rounded-xl px-4 py-2.5 text-sm leading-relaxed ${
+        className={`max-w-[85%] rounded-xl px-4 py-2.5 text-sm leading-relaxed sm:max-w-[75%] ${
           fromUser
             ? "bg-slate-800 text-slate-200"
             : "border border-teal-400/20 bg-teal-400/5 text-slate-200"

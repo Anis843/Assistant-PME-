@@ -18,6 +18,9 @@ const SUGGESTED_QUESTIONS = [
 export default function Chat() {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Le panneau des documents devient un volet en dessous de `lg` : son état
+  // est porté ici, seul ancêtre commun du volet et de son bouton d'ouverture.
+  const [panelOpen, setPanelOpen] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -46,13 +49,20 @@ export default function Chat() {
 
   return (
     <div className="flex h-full overflow-hidden rounded-xl border border-slate-800">
-      <DocumentContextPanel documents={documents} loading={loading} />
+      <DocumentContextPanel
+        documents={documents}
+        loading={loading}
+        open={panelOpen}
+        onClose={() => setPanelOpen(false)}
+      />
       <ConversationThread
         agentName="NexIA"
         onSend={handleSend}
         documentsReady={hasIndexedDocuments}
         documentsChecked={!loading}
         suggestions={SUGGESTED_QUESTIONS}
+        indexedCount={documents.filter((doc) => doc.status === "indexed").length}
+        onShowDocuments={() => setPanelOpen(true)}
       />
     </div>
   );
