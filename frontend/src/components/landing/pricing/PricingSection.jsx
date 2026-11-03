@@ -3,6 +3,13 @@ import PricingToggle from "./PricingToggle";
 import PricingCard from "./PricingCard";
 
 // Prix mensuel et annuel (annuel = -20%) définis en dur pour éviter les arrondis flottants
+//
+// `soon: true` marque une fonctionnalité vendue dans le plan mais pas encore
+// livrée. Les agents spécialisés, les connecteurs, les workflows et le tableau
+// de bord d'usage sont aujourd'hui des maquettes : les annoncer au même rang
+// que le RAG, qui lui fonctionne, fait tenir la promesse jusqu'à la première
+// connexion du client — et pas au-delà. Mieux vaut vendre une feuille de route
+// assumée qu'un produit qu'on devra démentir en rendez-vous.
 const PLANS = [
   {
     id: "starter",
@@ -15,12 +22,12 @@ const PLANS = [
     ctaLabel: "Commencer",
     ctaVariant: "outline",
     features: [
-      "1 agent IA configuré",
+      "Questions-réponses sourcées sur vos PDF",
+      "Import et indexation illimités",
       "5 000 requêtes / mois",
-      "2 intégrations incluses",
       "Support email 5j/7",
-      "Hébergement France",
-      "Tableau de bord analytics",
+      { label: "2 intégrations incluses", soon: true },
+      { label: "Tableau de bord d'usage", soon: true },
     ],
   },
   {
@@ -36,14 +43,13 @@ const PLANS = [
     highlighted: true,
     badge: "POPULAIRE",
     features: [
-      "5 agents IA spécialisés",
+      "Questions-réponses sourcées sur vos PDF",
       "50 000 requêtes / mois",
-      "Intégrations illimitées",
       "Support prioritaire 7j/7",
-      "Hébergement France dédié",
-      "RAG sur vos documents",
-      "Workflows automatisés",
       "Formation équipe incluse",
+      { label: "5 agents IA spécialisés", soon: true },
+      { label: "Intégrations illimitées", soon: true },
+      { label: "Workflows automatisés", soon: true },
     ],
   },
   {
@@ -56,14 +62,13 @@ const PLANS = [
     ctaLabel: "Contacter les ventes",
     ctaVariant: "outline",
     features: [
-      "Agents illimités",
+      "LLM privé on-premise (Ollama) — vos documents ne sortent pas",
       "Requêtes illimitées",
-      "LLM privé on-premise",
-      "SLA 99.9% garanti",
-      "CSM dédié",
       "Audit sécurité inclus",
-      "Contrat cadre",
-      "Facturation personnalisée",
+      "Contrat cadre et facturation personnalisée",
+      "CSM dédié",
+      { label: "Agents illimités", soon: true },
+      { label: "SLA 99,9 % garanti", soon: true },
     ],
   },
 ];
@@ -105,6 +110,12 @@ export default function PricingSection() {
           />
         ))}
       </div>
+
+      <p className="mx-auto mt-10 max-w-3xl text-center text-xs text-slate-500">
+        Les fonctionnalités marquées « à venir » figurent à la feuille de route
+        et ne sont pas encore disponibles. Elles sont priorisées selon les
+        besoins des premiers clients.
+      </p>
     </section>
   );
 }

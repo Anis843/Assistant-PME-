@@ -2,7 +2,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, UploadFile, File, HTTPE
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.core.security import get_current_user
+from app.api.deps import get_current_user
 from app.models.user import User
 from app.models.document import Document, DocumentStatus
 from app.schemas.document import DocumentOut, DocumentUploadResponse, SearchQuery, SearchResult
@@ -18,10 +18,10 @@ async def upload_document(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    content = await file.read()
-
+    # Le fichier est écrit en flux, par blocs : son extension est vérifiée
+    # avant toute lecture, et sa taille bornée pendant l'écriture.
     try:
-        stored_filename, _ = document_service.save_file(file.filename, content)
+        stored_filename, _ = await document_service.save_upload(file)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

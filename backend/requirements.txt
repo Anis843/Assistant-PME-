@@ -1,20 +1,42 @@
-fastapi
-uvicorn[standard]
-sqlalchemy
-alembic
-pydantic-settings
+# Versions épinglées.
+#
+# Elles ne l'étaient pas, et ça a coûté une panne : une image reconstruite a
+# récupéré SQLAlchemy 2.1, qui a changé le pilote par défaut du schéma
+# « postgresql:// » (psycopg2 -> psycopg v3). L'API est partie en boucle de
+# redémarrage sur « No module named 'psycopg' » sans qu'une ligne de code ait
+# changé, et restait fonctionnelle en local où SQLAlchemy 2.0 était déjà
+# installé. Un build reproductible est la seule protection contre ce genre
+# d'écart entre la machine de dev et l'hébergeur.
+#
+# Pour mettre à jour : relever les versions, reconstruire l'image, et rejouer
+# le parcours inscription -> import -> question avant de pousser.
+
+fastapi==0.162.0
+uvicorn[standard]==0.54.0
+
+sqlalchemy==2.1.6
+alembic==1.20.1
+
 # L'extra [email] tire email-validator, requis par le type EmailStr utilisé
 # dans les schémas d'authentification. Sans lui, l'app importe correctement en
 # local (le paquet y traîne comme dépendance indirecte) mais refuse de démarrer
 # dans un conteneur construit à partir de ce seul fichier.
-pydantic[email]
-python-dotenv
-psycopg2-binary
-passlib[bcrypt]
+pydantic[email]==2.14.2
+pydantic-settings==2.16.2
+python-dotenv==1.2.4
+
+# Pilote PostgreSQL. Il est aussi nommé explicitement dans l'URL de connexion
+# (voir app/database/session.py) : le schéma nu « postgresql:// » laisse
+# SQLAlchemy choisir, et ce choix dépend de sa version.
+psycopg2-binary==2.9.13
+pgvector==0.5.1
+
+passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
-python-jose[cryptography]
-python-multipart
-pgvector
-pypdf
-sentence-transformers
-httpx
+python-jose[cryptography]==3.5.0
+python-multipart==0.0.33
+
+pypdf==6.21.4
+sentence-transformers==6.2.0
+
+httpx==0.28.1

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AgentsGrid from "../components/dashboard/agents/AgentsGrid";
+import DemoNotice from "../components/ui/DemoNotice";
 
 // Données d'exemple — à remplacer par un fetch vers le backend
 const INITIAL_AGENTS = [
@@ -58,11 +59,20 @@ export default function Agents() {
   }
 
   return (
-    <AgentsGrid
-      agents={agents}
-      onToggleActive={handleToggleActive}
-      onConfigure={handleConfigure}
-      onAddAgent={handleAddAgent}
-    />
+    <div className="flex flex-col gap-6">
+      <DemoNotice>
+        Maquette. Les agents spécialisés (Commercial, RH, Comptabilité) sont
+        à la feuille de route : même moteur RAG, avec un prompt et un
+        périmètre documentaire dédiés. Aujourd’hui, le <b>Chat</b> interroge
+        l’ensemble de vos documents.
+      </DemoNotice>
+
+      <AgentsGrid
+        agents={agents}
+        onToggleActive={handleToggleActive}
+        onConfigure={handleConfigure}
+        onAddAgent={handleAddAgent}
+      />
+    </div>
   );
 }

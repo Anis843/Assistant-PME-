@@ -2,6 +2,7 @@ import { useState } from "react";
 import SettingsSection from "../components/dashboard/parametres/SettingsSection";
 import ToggleRow from "../components/dashboard/parametres/ToggleRow";
 import Button from "../components/ui/Button";
+import DemoNotice from "../components/ui/DemoNotice";
 
 const INITIAL_NOTIFICATIONS = [
   {
@@ -41,6 +42,10 @@ export default function Parametres() {
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
+      <DemoNotice>
+        Les modifications de cette page ne sont pas encore enregistrées : elles seront perdues au rechargement.
+      </DemoNotice>
+
       <SettingsSection
         title="Profil"
         description="Informations de votre compte."

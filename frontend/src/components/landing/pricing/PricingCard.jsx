@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 /**
  * PricingCard
  * Une carte de plan tarifaire.
@@ -10,10 +12,14 @@
  * - customPriceLabel: string     -> affiché à la place de `price` si price est null (ex: "Sur devis")
  * - description: string
  * - ctaLabel: string
+ * - ctaTo: string                -> route cible du bouton (react-router)
  * - ctaVariant: 'solid' | 'outline'
  * - highlighted: boolean         -> true pour le plan mis en avant (ex: Business)
  * - badge: string                -> ex: "POPULAIRE" (optionnel)
- * - features: string[]
+ * - features: Array<string | { label: string, soon?: boolean }>
+ *     `soon: true` affiche la pastille « à venir » : la fonctionnalité est
+ *     vendue dans le plan mais n'est pas encore livrée. Laisser croire
+ *     l'inverse à un prospect ne tient que jusqu'à sa première connexion.
  */
 const categoryColorMap = {
   slate: "text-slate-400",
@@ -35,11 +41,18 @@ export default function PricingCard({
   customPriceLabel,
   description,
   ctaLabel,
+  ctaTo = "/Register",
   ctaVariant = "outline",
   highlighted = false,
   badge,
   features = [],
 }) {
+  // Accepte indifféremment une chaîne ou un objet, pour ne pas imposer la
+  // forme longue aux fonctionnalités déjà disponibles.
+  const items = features.map((feature) =>
+    typeof feature === "string" ? { label: feature, soon: false } : feature,
+  );
+
   return (
     <div
       className={`relative flex flex-col rounded-2xl border p-6 ${
@@ -71,24 +84,41 @@ export default function PricingCard({
 
       <p className="mt-3 text-sm text-slate-400">{description}</p>
 
-      <button
-        type="button"
-        className={`mt-6 rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
+      {/* Lien, et non <button> : les trois boutons n'avaient aucun gestionnaire
+          et ne faisaient donc strictement rien. Un prospect convaincu par la
+          grille tarifaire cliquait « Commencer » et restait sur la page. */}
+      <Link
+        to={ctaTo}
+        className={`mt-6 rounded-xl px-4 py-3 text-center text-sm font-semibold transition-colors ${
           ctaVariant === "solid"
             ? "bg-teal-400 text-slate-950 hover:bg-teal-300"
             : "border border-slate-700 text-white hover:bg-white/5"
         }`}
       >
         {ctaLabel}
-      </button>
+      </Link>
 
       <ul className="mt-6 flex flex-col gap-3">
-        {features.map((feature) => (
-          <li key={feature} className="flex items-center gap-3 text-sm text-slate-300">
+        {items.map(({ label, soon }) => (
+          <li
+            key={label}
+            className={`flex items-center gap-3 text-sm ${
+              soon ? "text-slate-400" : "text-slate-300"
+            }`}
+          >
             <span
-              className={`h-3 w-3 shrink-0 rounded-full border-2 ${dotColorMap[categoryColor]}`}
+              className={`h-3 w-3 shrink-0 rounded-full border-2 ${
+                soon ? "border-slate-600" : dotColorMap[categoryColor]
+              }`}
             />
-            {feature}
+            <span>
+              {label}
+              {soon && (
+                <span className="ml-2 rounded-full border border-slate-700 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                  à venir
+                </span>
+              )}
+            </span>
           </li>
         ))}
       </ul>

@@ -23,6 +23,13 @@
 
 Créez un compte, importez un PDF, posez vos questions en français.
 
+> **⚠️ Statut au 2 novembre 2026 — API hors ligne.** Le front est en ligne,
+> mais le backend hébergé ne répond plus (`Application not found`) : la création
+> de compte et le chat échouent. La démonstration nécessite un redéploiement de
+> l'API. En attendant, le projet se lance en local en quelques minutes — voir
+> [Démarrage rapide](#-démarrage-rapide). *(Retirer cette note après
+> redéploiement.)*
+
 > **Instance de démonstration.** Les documents importés sont effacés au
 > redémarrage du serveur, et la génération passe par un LLM hébergé.
 > En déploiement client, NexIA bascule en **mode local** (Ollama) par une simple
@@ -198,7 +205,10 @@ OLLAMA_MODEL=llama3.2:3b
 
 # --- Google Gemini (hébergé, gratuit) ---
 GEMINI_API_KEY=
-GEMINI_MODEL=gemini-flash-latest
+# Modèle épinglé, jamais un alias : « gemini-flash-latest » a basculé vers
+# un modèle retiré aux nouveaux comptes, et les appels restaient alors sans
+# réponse plus d'une minute au lieu d'échouer franchement.
+GEMINI_MODEL=gemini-3.6-flash
 
 # --- Groq (hébergé, gratuit) ---
 GROQ_API_KEY=
@@ -212,7 +222,7 @@ Changez simplement `LLM_PROVIDER`, puis redémarrez le backend :
 | `LLM_PROVIDER` | Modèle par défaut | Confidentialité | Clé requise |
 |----------------|-------------------|-----------------|-------------|
 | `ollama` | `llama3.2:3b` (local) | ✅ Données locales | — |
-| `gemini` | `gemini-flash-latest` | ❌ Hébergé | `GEMINI_API_KEY` |
+| `gemini` | `gemini-3.6-flash` | ❌ Hébergé | `GEMINI_API_KEY` |
 | `groq` | `llama-3.3-70b-versatile` | ❌ Hébergé | `GROQ_API_KEY` |
 | `openai` | *au choix* | ❌ Hébergé | `OPENAI_BASE_URL`, `OPENAI_API_KEY`, `OPENAI_MODEL` |
 
@@ -266,7 +276,10 @@ modification du code : trois variables d'environnement suffisent.
 - [x] Chat RAG avec réponses sourcées
 - [x] LLM interchangeable (Ollama / Gemini / Groq / tout service compatible OpenAI)
 - [x] Déploiement en ligne (Vercel · Railway · Neon)
+- [x] Interface responsive (téléphone et tablette)
 - [ ] **Agents spécialisés** (Commercial, RH, Comptabilité…) — prompts et périmètres dédiés
+- [ ] Connecteurs (CRM, Drive, e-mail) — aujourd'hui l'import se fait par PDF
+- [ ] Tableau de bord d'usage alimenté par de vraies données
 - [ ] Numéros de page précis dans les sources
 - [ ] OCR pour les PDF scannés
 - [ ] Stockage objet pour les documents importés (persistance entre redémarrages)
