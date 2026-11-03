@@ -41,4 +41,12 @@ EXPOSE 7860
 # Forme « shell » volontaire : elle seule interprète ${PORT}. La plupart des
 # hébergeurs (Railway, Cloud Run, Render…) imposent le port par cette variable
 # et considèrent le conteneur en échec s'il écoute ailleurs. 7860 en repli.
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}
+#
+# `exec` est indispensable : sans lui, le shell reste PID 1 et uvicorn tourne
+# comme son enfant. Le SIGTERM envoyé par l'hébergeur à chaque redéploiement
+# va alors au shell, qui ne le transmet pas — le conteneur ignore l'arrêt
+# jusqu'au SIGKILL de fin de délai (constaté : `docker stop` sans effet, arrêt
+# seulement après 10 s). Cela ralentit les déploiements et peut ressembler à
+# un plantage dans les journaux. Avec `exec`, uvicorn devient PID 1 et reçoit
+# les signaux directement.
+CMD exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}

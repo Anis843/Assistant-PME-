@@ -1,6 +1,7 @@
 import StatCard from "../components/dashboard/StatCard";
 import AnalyticsChart from "../components/dashboard/analyses/AnalyticsChart";
 import InsightsList from "../components/dashboard/analyses/InsightsList";
+import DemoNotice from "../components/ui/DemoNotice";
 
 // Données d'exemple — à remplacer par un fetch vers le backend
 const STATS = [
@@ -77,6 +78,10 @@ const INSIGHTS = [
 export default function Analyses() {
   return (
     <div className="flex flex-col gap-6">
+      <DemoNotice>
+        Données d’illustration. Les statistiques d’usage ne sont pas encore collectées ; cette page montre la forme que prendra le suivi.
+      </DemoNotice>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {STATS.map((stat) => (
           <StatCard key={stat.label} {...stat} />

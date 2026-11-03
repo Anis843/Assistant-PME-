@@ -15,6 +15,11 @@ UPLOAD_DIR = "uploads"
 ALLOWED_EXTENSIONS = {".pdf"}
 MAX_FILE_SIZE = 20 * 1024 * 1024  # 20 Mo
 
+# Taille des blocs lus à l'upload. Lire par blocs, plutôt que d'un seul coup,
+# permet d'interrompre dès le dépassement de MAX_FILE_SIZE sans avoir chargé
+# le fichier entier en mémoire.
+UPLOAD_CHUNK_SIZE = 1024 * 1024  # 1 Mo
+
 CHUNK_SIZE = 800  # caractères par chunk (approximatif, découpe par mots)
 CHUNK_OVERLAP = 100  # chevauchement entre deux chunks consécutifs
 
@@ -43,23 +48,56 @@ def _get_embedding_model() -> SentenceTransformer:
     return _embedding_model
 
 
-def save_file(original_filename: str, content: bytes) -> tuple[str, str]:
-    """Valide (extension, taille) et écrit le fichier sur disque.
+def _validate_extension(original_filename: str) -> str:
+    """Vérifie l'extension du fichier et la retourne.
+
+    Appelé avant toute lecture du corps de la requête : refuser un .exe de 2 Go
+    ne doit pas coûter le téléchargement de ces 2 Go.
+    """
+    ext = os.path.splitext(original_filename or "")[1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        raise ValueError("Seuls les fichiers PDF sont acceptés.")
+    return ext
+
+
+async def save_upload(upload) -> tuple[str, str]:
+    """Écrit un fichier envoyé sur disque, par blocs, en bornant sa taille.
+
+    `upload` est tout objet exposant `await read(n)` — en pratique l'UploadFile
+    de FastAPI, mais le service reste ainsi indépendant du framework.
+
+    La version précédente lisait le corps d'un seul coup (`await file.read()`)
+    puis comparait `len(content)` à MAX_FILE_SIZE : le fichier était donc
+    intégralement chargé en mémoire *avant* d'être refusé, et la limite de
+    20 Mo ne protégeait rien. Sur un conteneur à 512 Mo de RAM, un seul envoi
+    volumineux suffisait à faire tomber l'API. Ici la lecture s'arrête au
+    premier bloc qui dépasse.
 
     Retourne (nom_stocké, chemin_complet).
     """
-    ext = os.path.splitext(original_filename)[1].lower()
-    if ext not in ALLOWED_EXTENSIONS:
-        raise ValueError("Seuls les fichiers PDF sont acceptés.")
-    if len(content) > MAX_FILE_SIZE:
-        raise ValueError("Fichier trop volumineux (max 20 Mo).")
+    ext = _validate_extension(getattr(upload, "filename", "") or "")
 
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     stored_filename = f"{uuid.uuid4()}{ext}"
     file_path = os.path.join(UPLOAD_DIR, stored_filename)
 
-    with open(file_path, "wb") as f:
-        f.write(content)
+    size = 0
+    try:
+        with open(file_path, "wb") as f:
+            while True:
+                chunk = await upload.read(UPLOAD_CHUNK_SIZE)
+                if not chunk:
+                    break
+                size += len(chunk)
+                if size > MAX_FILE_SIZE:
+                    raise ValueError("Fichier trop volumineux (max 20 Mo).")
+                f.write(chunk)
+    except Exception:
+        # Ne pas laisser de fichier partiel derrière soi : aucune ligne en base
+        # ne le référencerait, donc rien ne viendrait jamais le nettoyer.
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        raise
 
     return stored_filename, file_path
 
@@ -179,6 +217,23 @@ def process_document(document_id: uuid.UUID) -> None:
         file_path = os.path.join(UPLOAD_DIR, document.filename)
         text = load_document(file_path)
         chunks = split_document(text)
+
+        # Un PDF scanné (image sans couche texte) ne produit aucun extrait.
+        # Sans cette garde, le document passait au statut « indexed » avec zéro
+        # chunk : l'interface affichait une pastille verte « Indexé » pour un
+        # fichier muet, et le chat répondait « Je ne trouve pas cette
+        # information » sans que rien n'explique pourquoi. Une erreur franche
+        # dit au moins à l'utilisateur que le fichier est inexploitable.
+        if not chunks:
+            logger.warning(
+                "Document %s : aucun texte extrait (PDF scanné ?). "
+                "Indexation abandonnée.",
+                document_id,
+            )
+            document.status = DocumentStatus.error
+            db.commit()
+            return
+
         embeddings = embed_passages(chunks)
 
         for index, (content, embedding) in enumerate(zip(chunks, embeddings)):

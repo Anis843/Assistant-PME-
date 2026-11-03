@@ -1,5 +1,6 @@
 import StatCard from "../components/dashboard/StatCard";
 import ActivityPanel from "../components/dashboard/ActivityPanel";
+import DemoNotice from "../components/ui/DemoNotice";
 
 // Données d'exemple — à remplacer par un appel API / fetch réel
 const STATS = [
@@ -37,6 +38,10 @@ const ACTIVITY_DATA = [
 export default function Dashboard() {
   return (
     <div className="flex flex-col gap-6">
+      <DemoNotice>
+        Données d’illustration. Ce tableau de bord n’est pas encore relié à votre activité réelle. Les pages <b>Documents</b> et <b>Chat</b>, elles, le sont entièrement.
+      </DemoNotice>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {STATS.map((stat) => (
           <StatCard key={stat.label} {...stat} />

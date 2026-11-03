@@ -12,6 +12,7 @@ import {
   Workflow,
 } from "lucide-react";
 import ConnectorsGrid from "../components/dashboard/integrations/ConnectorsGrid";
+import DemoNotice from "../components/ui/DemoNotice";
 
 // Données d'exemple — à remplacer par un fetch vers le backend
 const INITIAL_CONNECTORS = [
@@ -120,6 +121,10 @@ export default function Integrations() {
 
   return (
     <div className="flex flex-col gap-6">
+      <DemoNotice>
+        Maquette. Aucun connecteur n’est opérationnel : les boutons ci-dessous ne déclenchent aucune connexion. L’import se fait aujourd’hui par dépôt de PDF depuis la page <b>Documents</b>.
+      </DemoNotice>
+
       <p className="text-sm text-slate-400">
         <span className="font-semibold text-white">{connectedCount}</span>{" "}
         connecteur
